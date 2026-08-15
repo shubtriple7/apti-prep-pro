@@ -102,8 +102,10 @@ export const LEVELS = [
 
 export function levelFor(xp: number) {
   let index = 0;
-  for (let i = 0; i < LEVELS.length; i++) if (xp >= LEVELS[i].min) index = i;
-  const current = LEVELS[index];
+  LEVELS.forEach((lvl, i) => {
+    if (xp >= lvl.min) index = i;
+  });
+  const current = LEVELS[index] ?? LEVELS[0];
   const next = LEVELS[index + 1];
   const span = next ? next.min - current.min : 1;
   const into = xp - current.min;
