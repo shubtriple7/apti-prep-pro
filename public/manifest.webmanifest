@@ -1,0 +1,16 @@
+{
+  "name": "Aptivio — 10 minutes a day. Placement ready.",
+  "short_name": "Aptivio",
+  "description": "Daily placement preparation: two 10-minute question sets, business news decoded for interviews, streaks and rewards.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111110",
+  "theme_color": "#111110",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
