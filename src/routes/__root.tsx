@@ -84,16 +84,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Daily placement prep: two 10-minute question sets, business news decoded for interviews, streaks, XP and rewards.",
+          "Aptivio is a daily placement-prep habit: 10 curated aptitude, verbal, HR, technical and business questions every morning and evening.",
       },
       { name: "author", content: "Aptivio" },
       { property: "og:title", content: "Aptivio — 10 minutes a day. Placement ready." },
       {
         property: "og:description",
-        content: "Two 10-minute daily sets, business news for interviews, streaks and rewards.",
+        content: "Aptivio is a daily placement-prep habit: 10 curated aptitude, verbal, HR, technical and business questions every morning and evening.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Aptivio — 10 minutes a day. Placement ready." },
+      { name: "twitter:description", content: "Aptivio is a daily placement-prep habit: 10 curated aptitude, verbal, HR, technical and business questions every morning and evening." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8193e050c6c79cc9aa482dc4f536abf/id-preview-0a3e2cb5--4ddd648d-0cad-4e4a-8f4b-729d17c67052.lovable.app-1787061965157.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8193e050c6c79cc9aa482dc4f536abf/id-preview-0a3e2cb5--4ddd648d-0cad-4e4a-8f4b-729d17c67052.lovable.app-1787061965157.png" },
     ],
     links: [
       {

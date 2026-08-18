@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Build a placement-ready streak with two 10-minute sessions a day, business news decoded for interviews, and unlockable career kits.",
+          "Aptivio is a daily placement-prep habit: 10 curated aptitude, verbal, HR, technical and business questions every morning and evening.",
       },
     ],
   }),
