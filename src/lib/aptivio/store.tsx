@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type {
+  Attempt,
   Category,
   Profile,
   ProgressState,
@@ -15,7 +16,7 @@ import type {
   SessionSlot,
 } from "./types";
 
-const STORAGE_KEY = "aptivio.progress.v1";
+const STORAGE_KEY = "aptivio.progress.v2";
 
 const emptyStats = (): ProgressState["categoryStats"] => ({
   aptitude: { correct: 0, total: 0 },
@@ -35,16 +36,22 @@ export const INITIAL_STATE: ProgressState = {
   answered: {},
   categoryStats: emptyStats(),
   history: [],
+  attempts: [],
+  bookmarkedNews: [],
+  claimedRewards: [],
 };
 
 interface StoreValue {
   state: ProgressState;
   hydrated: boolean;
   completeOnboarding: (profile: Profile) => void;
+  updateProfile: (patch: Partial<Profile>) => void;
   recordSession: (
     result: Omit<SessionResult, "completedAt">,
-    perCategory: Array<{ category: Category; correct: boolean }>,
+    attempts: Attempt[],
   ) => void;
+  toggleBookmark: (newsId: string) => void;
+  claimReward: (rewardId: string) => void;
   reset: () => void;
 }
 
@@ -56,7 +63,8 @@ export function AptivioProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw =
+        localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("aptivio.progress.v1");
       if (raw) setState({ ...INITIAL_STATE, ...JSON.parse(raw) });
     } catch {
       /* ignore corrupted state */
@@ -73,16 +81,24 @@ export function AptivioProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, profile, onboarded: true }));
   }, []);
 
+  const updateProfile = useCallback((patch: Partial<Profile>) => {
+    setState((prev) =>
+      prev.profile ? { ...prev, profile: { ...prev.profile, ...patch } } : prev,
+    );
+  }, []);
+
   const recordSession = useCallback<StoreValue["recordSession"]>(
-    (result, perCategory) => {
+    (result, attempts) => {
       setState((prev) => {
         const categoryStats = { ...prev.categoryStats };
-        perCategory.forEach(({ category, correct }) => {
-          const current = categoryStats[category];
-          categoryStats[category] = {
-            correct: current.correct + (correct ? 1 : 0),
+        const answered = { ...prev.answered };
+        attempts.forEach((attempt) => {
+          const current = categoryStats[attempt.category];
+          categoryStats[attempt.category] = {
+            correct: current.correct + (attempt.correct ? 1 : 0),
             total: current.total + 1,
           };
+          answered[attempt.questionId] = attempt.correct;
         });
 
         const alreadyToday = prev.history.some(
@@ -102,6 +118,8 @@ export function AptivioProvider({ children }: { children: ReactNode }) {
               ? prev.day + 1
               : prev.day,
           categoryStats,
+          answered,
+          attempts: [...prev.attempts, ...attempts],
           history: alreadyToday
             ? prev.history
             : [...prev.history, { ...result, completedAt: new Date().toISOString() }],
@@ -111,11 +129,46 @@ export function AptivioProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const toggleBookmark = useCallback((newsId: string) => {
+    setState((prev) => ({
+      ...prev,
+      bookmarkedNews: prev.bookmarkedNews.includes(newsId)
+        ? prev.bookmarkedNews.filter((id) => id !== newsId)
+        : [...prev.bookmarkedNews, newsId],
+    }));
+  }, []);
+
+  const claimReward = useCallback((rewardId: string) => {
+    setState((prev) =>
+      prev.claimedRewards.includes(rewardId)
+        ? prev
+        : { ...prev, claimedRewards: [...prev.claimedRewards, rewardId] },
+    );
+  }, []);
+
   const reset = useCallback(() => setState(INITIAL_STATE), []);
 
   const value = useMemo(
-    () => ({ state, hydrated, completeOnboarding, recordSession, reset }),
-    [state, hydrated, completeOnboarding, recordSession, reset],
+    () => ({
+      state,
+      hydrated,
+      completeOnboarding,
+      updateProfile,
+      recordSession,
+      toggleBookmark,
+      claimReward,
+      reset,
+    }),
+    [
+      state,
+      hydrated,
+      completeOnboarding,
+      updateProfile,
+      recordSession,
+      toggleBookmark,
+      claimReward,
+      reset,
+    ],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
@@ -141,3 +194,5 @@ export function accuracyOf(state: ProgressState) {
     pct: totals.total ? Math.round((totals.correct / totals.total) * 100) : 0,
   };
 }
+
+export type { Category };
