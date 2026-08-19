@@ -5,6 +5,31 @@ export type Category =
   | "technical"
   | "business";
 
+export type Topic =
+  | "Aptitude"
+  | "Logic"
+  | "Verbal"
+  | "HR"
+  | "Business News"
+  | "SQL"
+  | "DBMS"
+  | "Operating Systems"
+  | "Computer Networks"
+  | "OOP";
+
+export const TOPICS: Topic[] = [
+  "Aptitude",
+  "Logic",
+  "Verbal",
+  "HR",
+  "Business News",
+  "SQL",
+  "DBMS",
+  "Operating Systems",
+  "Computer Networks",
+  "OOP",
+];
+
 export type Difficulty = "easy" | "medium" | "hard";
 
 export type QuestionType = "mcq" | "multi" | "boolean" | "order";
@@ -21,15 +46,23 @@ export interface Question {
   type: QuestionType;
   explanation: string;
   sourceType: "authored" | "ai" | "curated";
+  /** Optional explicit topic; otherwise inferred in analytics. */
+  topic?: Topic;
 }
 
 export interface NewsCard {
   id: string;
   date: string;
   headline: string;
+  company: string;
+  category: string;
+  difficulty: Difficulty;
   summary: string;
   whyItMatters: string;
+  /** Primary question surfaced on the card. */
   interviewQuestion: string;
+  interviewQuestions: string[];
+  reference: { label: string; url: string };
   mcq: {
     question: string;
     options: string[];
@@ -65,6 +98,21 @@ export interface SessionResult {
   completedAt: string;
 }
 
+/** One answered question — the raw signal the weakness engine runs on. */
+export interface Attempt {
+  questionId: string;
+  category: Category;
+  topic: Topic;
+  difficulty: Difficulty;
+  companyTags: string[];
+  correct: boolean;
+  /** Milliseconds spent on the question. */
+  timeMs: number;
+  answeredAt: string;
+  day: number;
+  slot: SessionSlot;
+}
+
 export interface ProgressState {
   onboarded: boolean;
   profile: Profile | null;
@@ -75,6 +123,9 @@ export interface ProgressState {
   answered: Record<string, boolean>;
   categoryStats: Record<Category, { correct: number; total: number }>;
   history: SessionResult[];
+  attempts: Attempt[];
+  bookmarkedNews: string[];
+  claimedRewards: string[];
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {
